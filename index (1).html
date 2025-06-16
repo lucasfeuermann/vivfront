@@ -2,86 +2,109 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <title>Viveiro - Página Inicial</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Sistema de Viveiros</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #e8f5e9;
+      background-color: #e0f7fa;
+      color: #00695c;
+      margin: 0;
+      padding: 0;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       height: 100vh;
     }
-    .login-container {
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      width: 300px;
-    }
-    h2 {
+
+    .container {
       text-align: center;
-      margin-bottom: 20px;
+      background-color: #ffffff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 350px;
     }
-    input[type="email"], input[type="password"] {
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin-top: 0;
+    }
+
+    input {
       width: 100%;
       padding: 10px;
       margin: 10px 0;
-      border-radius: 5px;
       border: 1px solid #ccc;
+      border-radius: 6px;
     }
+
     button {
       width: 100%;
-      padding: 10px;
-      background-color: #43a047;
+      padding: 12px;
+      background-color: #00796b;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
+      font-size: 16px;
       cursor: pointer;
     }
+
     button:hover {
-      background-color: #388e3c;
+      background-color: #004d40;
     }
-    .error {
-      color: red;
-      font-size: 0.9em;
-      text-align: center;
+
+    small {
+      display: block;
+      margin-top: 15px;
+      font-size: 13px;
+      color: #555;
     }
   </style>
 </head>
 <body>
+  <div class="container">
+    <h1>Bem-vindo ao Sistema Viveiro</h1>
+    <p>Gerencie viveiros, densidades, relatórios e produtividade.</p>
 
-  <div class="login-container">
-    <h2>Login</h2>
-    <div class="error" id="errorMsg"></div>
-    <input type="email" id="email" placeholder="E-mail">
-    <input type="password" id="password" placeholder="Senha">
-    <button onclick="login()">Entrar</button>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="senha" placeholder="Senha" required>
+    <button onclick="acessar()">Entrar / Cadastrar</button>
+    <small>Se não existir, será cadastrado automaticamente.</small>
   </div>
 
   <script>
-    function login() {
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const errorMsg = document.getElementById('errorMsg');
+    function acessar() {
+      const email = document.getElementById("email").value.trim();
+      const senha = document.getElementById("senha").value.trim();
 
-      if (email === "" || password === "") {
-        errorMsg.textContent = "Por favor, preencha todos os campos.";
+      if (!email || !senha) {
+        alert("Por favor, preencha todos os campos.");
         return;
       }
 
-      // Simulação de autenticação (e-mail e senha fixos para testes)
-      const emailValido = "lucasfeuer@gmail.com";
-      const senhaValida = "123456";
+      // Recuperar usuários salvos no localStorage
+      let usuarios = JSON.parse(localStorage.getItem("usuarios")) || {};
 
-      if (email === emailValido && password === senhaValida) {
-        window.location.href = "dashboard.html"; // Redireciona se login for correto
+      // Se o usuário já existir, verificar senha
+      if (usuarios[email]) {
+        if (usuarios[email] === senha) {
+          alert("Login realizado com sucesso!");
+          window.location.href = "dashboard.html";
+        } else {
+          alert("Senha incorreta.");
+        }
       } else {
-        errorMsg.textContent = "E-mail ou senha inválidos.";
+        // Se não existir, cadastrar
+        usuarios[email] = senha;
+        localStorage.setItem("usuarios", JSON.stringify(usuarios));
+        alert("Cadastro realizado com sucesso! Redirecionando...");
+        window.location.href = "dashboard.html";
       }
     }
   </script>
-
 </body>
 </html>
