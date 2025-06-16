@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Relatório Final</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f1f8e9;
+      background-color: #f3fbe9;
       padding: 40px;
+      text-align: center;
     }
 
     h1 {
@@ -16,22 +17,24 @@
 
     form, .resultado {
       background: white;
-      padding: 20px;
+      padding: 30px;
       border-radius: 10px;
       max-width: 600px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
+      margin: 0 auto 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      text-align: left;
     }
 
     label {
       font-weight: bold;
       display: block;
       margin-top: 15px;
+      color: #333;
     }
 
     input[type="number"] {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
       margin-top: 5px;
       border: 1px solid #ccc;
       border-radius: 5px;
@@ -40,7 +43,7 @@
     button {
       margin-top: 20px;
       padding: 10px 20px;
-      background-color: #43a047;
+      background-color: #4CAF50;
       border: none;
       border-radius: 5px;
       color: white;
@@ -48,7 +51,7 @@
     }
 
     button:hover {
-      background-color: #2e7d32;
+      background-color: #388e3c;
     }
 
     .section {
@@ -58,24 +61,40 @@
     .section strong {
       color: #1b5e20;
     }
+
+    #relatorio h2 {
+      color: #2e7d32;
+    }
+
+    .voltar {
+      margin-top: 10px;
+      display: inline-block;
+      text-decoration: none;
+      color: #4CAF50;
+      font-weight: bold;
+    }
+
+    .voltar:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
 
-  <h1>Gerar Relatório Completo</h1>
+  <h1>Relatório Final</h1>
 
   <form id="formRelatorio">
     <label for="producaoTotalKg">Produção Total (kg):</label>
-    <input type="number" id="producaoTotalKg" required>
+    <input type="number" id="producaoTotalKg" required min="0" step="any" />
 
     <label for="areaM2">Área (m²):</label>
-    <input type="number" id="areaM2" required>
+    <input type="number" id="areaM2" required min="0" step="any" />
 
     <label for="larvas">Número de Larvas:</label>
-    <input type="number" id="larvas" required>
+    <input type="number" id="larvas" required min="0" step="1" />
 
     <label for="quantidadeFinal">Quantidade Final de Camarões:</label>
-    <input type="number" id="quantidadeFinal" required>
+    <input type="number" id="quantidadeFinal" required min="0" step="1" />
 
     <button type="submit">Gerar Relatório</button>
   </form>
@@ -99,8 +118,10 @@
     </div>
   </div>
 
+  <a class="voltar" href="dashboard.html">← Voltar ao Dashboard</a>
+
   <script>
-    document.getElementById('formRelatorio').addEventListener('submit', async function (e) {
+    document.getElementById('formRelatorio').addEventListener('submit', function (e) {
       e.preventDefault();
 
       const producaoTotalKg = parseFloat(document.getElementById('producaoTotalKg').value);
@@ -108,30 +129,27 @@
       const larvas = parseFloat(document.getElementById('larvas').value);
       const quantidadeFinal = parseFloat(document.getElementById('quantidadeFinal').value);
 
-      const resposta = await fetch('http://localhost:8080/relatorio', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ producaoTotalKg, areaM2, larvas, quantidadeFinal })
-      });
-
-      if (resposta.ok) {
-        const resultado = await resposta.json();
-
-        // Mostrar dados fornecidos
-        document.getElementById('outProducao').textContent = producaoTotalKg;
-        document.getElementById('outArea').textContent = areaM2;
-        document.getElementById('outLarvas').textContent = larvas;
-        document.getElementById('outFinal').textContent = quantidadeFinal;
-
-        // Mostrar resultados
-        document.getElementById('resProdutividade').textContent = resultado.produtividade;
-        document.getElementById('resDensidade').textContent = resultado.densidade;
-        document.getElementById('resSobrevivencia').textContent = resultado.taxaSobrevivencia;
-
-        document.getElementById('relatorio').style.display = 'block';
-      } else {
-        alert("Erro ao gerar relatório. Verifique os dados.");
+      if (areaM2 <= 0 || larvas <= 0) {
+        alert("Área e número de larvas devem ser maiores que zero.");
+        return;
       }
+
+      // Cálculos
+      const produtividade = producaoTotalKg / areaM2;
+      const densidade = larvas / areaM2;
+      const taxaSobrevivencia = (quantidadeFinal / larvas) * 100;
+
+      // Preenchimento dos dados
+      document.getElementById('outProducao').textContent = producaoTotalKg.toFixed(2);
+      document.getElementById('outArea').textContent = areaM2.toFixed(2);
+      document.getElementById('outLarvas').textContent = larvas.toFixed(0);
+      document.getElementById('outFinal').textContent = quantidadeFinal.toFixed(0);
+
+      document.getElementById('resProdutividade').textContent = produtividade.toFixed(2);
+      document.getElementById('resDensidade').textContent = densidade.toFixed(2);
+      document.getElementById('resSobrevivencia').textContent = taxaSobrevivencia.toFixed(2);
+
+      document.getElementById('relatorio').style.display = 'block';
     });
   </script>
 
