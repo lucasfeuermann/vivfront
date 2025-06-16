@@ -1,104 +1,102 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Cálculo de Produtividade</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f1f8e9;
+      background-color: #f3fbe9;
       padding: 40px;
+      text-align: center;
     }
-
-    h2 {
+    h1 {
       color: #2e7d32;
     }
-
     form {
-      background: white;
-      padding: 20px;
+      background-color: #fff;
+      padding: 30px;
       border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       max-width: 400px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin: 0 auto;
     }
-
     label {
       display: block;
-      margin-top: 10px;
+      margin-top: 15px;
       font-weight: bold;
+      color: #333;
     }
-
-    input[type="number"] {
+    input {
       width: 100%;
-      padding: 8px;
-      margin-top: 4px;
+      padding: 10px;
+      margin-top: 5px;
       border: 1px solid #ccc;
       border-radius: 5px;
     }
-
     button {
       margin-top: 20px;
-      padding: 10px 20px;
-      background-color: #43a047;
+      background-color: #4caf50;
       color: white;
       border: none;
+      padding: 10px 20px;
       border-radius: 5px;
       cursor: pointer;
     }
-
     button:hover {
-      background-color: #2e7d32;
+      background-color: #388e3c;
     }
-
     #resultado {
+      margin-top: 30px;
+      font-size: 18px;
+      color: #2e7d32;
+    }
+    .voltar {
       margin-top: 20px;
-      font-size: 1.2em;
-      color: #1b5e20;
+      display: inline-block;
+      text-decoration: none;
+      color: #4caf50;
+      font-weight: bold;
+    }
+    .voltar:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
+  <h1>Cálculo de Produtividade</h1>
 
-  <h2>Cálculo de Produtividade</h2>
-
-  <form id="formProdutividade">
+  <form id="formulario">
     <label for="producao">Produção Total (kg):</label>
-    <input type="number" id="producao" name="producao" step="0.01" required>
+    <input type="number" id="producao" required min="0" step="any" />
 
     <label for="area">Área (m²):</label>
-    <input type="number" id="area" name="area" step="0.01" required>
+    <input type="number" id="area" required min="0.01" step="any" />
 
     <button type="submit">Calcular</button>
-
-    <div id="resultado"></div>
   </form>
 
+  <div id="resultado"></div>
+
+  <a class="voltar" href="dashboard.html">← Voltar ao Dashboard</a>
+
   <script>
-    document.getElementById("formProdutividade").addEventListener("submit", async function (e) {
+    document.getElementById('formulario').addEventListener('submit', function(e) {
       e.preventDefault();
 
-      const producao = parseFloat(document.getElementById("producao").value);
-      const area = parseFloat(document.getElementById("area").value);
+      const producao = parseFloat(document.getElementById('producao').value);
+      const area = parseFloat(document.getElementById('area').value);
 
-      const resposta = await fetch("http://localhost:8080/api/produtividade/calcular", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          producaoTotalKg: producao,
-          areaM2: area
-        })
-      });
-
-      if (resposta.ok) {
-        const dados = await resposta.json();
-        document.getElementById("resultado").innerText = `Produtividade: ${dados.produtividade.toFixed(2)} kg/m²`;
-      } else {
-        document.getElementById("resultado").innerText = "Erro ao calcular. Verifique os dados.";
+      if (area === 0) {
+        document.getElementById('resultado').textContent = "Área deve ser maior que zero.";
+        return;
       }
+
+      const produtividade = producao / area;
+
+      // Exibe o resultado com 2 casas decimais
+      document.getElementById('resultado').textContent = `Produtividade: ${produtividade.toFixed(2)} kg/m²`;
     });
   </script>
-
 </body>
 </html>
