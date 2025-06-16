@@ -2,12 +2,12 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Gráfico Pizza - Indicadores do Viveiro</title>
+  <title>Gráfico Pizza - Indicadores</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f1f8e9;
+      background-color: #f3fbe9;
       padding: 40px;
       text-align: center;
     }
@@ -18,22 +18,23 @@
 
     form {
       background: white;
-      padding: 20px;
+      padding: 30px;
+      border-radius: 10px;
       max-width: 500px;
       margin: 0 auto 30px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
 
     label {
       display: block;
       font-weight: bold;
       margin-top: 15px;
+      color: #333;
     }
 
     input[type="number"] {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
       margin-top: 5px;
       border: 1px solid #ccc;
       border-radius: 5px;
@@ -42,7 +43,7 @@
     button {
       margin-top: 20px;
       padding: 10px 20px;
-      background-color: #43a047;
+      background-color: #4CAF50;
       border: none;
       border-radius: 5px;
       color: white;
@@ -50,12 +51,24 @@
     }
 
     button:hover {
-      background-color: #2e7d32;
+      background-color: #388e3c;
     }
 
     canvas {
       max-width: 500px;
-      margin: auto;
+      margin: 0 auto 30px;
+    }
+
+    .voltar {
+      display: inline-block;
+      margin-top: 10px;
+      text-decoration: none;
+      color: #4CAF50;
+      font-weight: bold;
+    }
+
+    .voltar:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -65,26 +78,28 @@
 
   <form id="formGrafico">
     <label for="producaoTotalKg">Produção Total (kg):</label>
-    <input type="number" id="producaoTotalKg" required>
+    <input type="number" id="producaoTotalKg" required min="0" step="any">
 
     <label for="areaM2">Área (m²):</label>
-    <input type="number" id="areaM2" required>
+    <input type="number" id="areaM2" required min="0" step="any">
 
     <label for="larvas">Número de Larvas:</label>
-    <input type="number" id="larvas" required>
+    <input type="number" id="larvas" required min="0" step="1">
 
     <label for="quantidadeFinal">Quantidade Final de Camarões:</label>
-    <input type="number" id="quantidadeFinal" required>
+    <input type="number" id="quantidadeFinal" required min="0" step="1">
 
     <button type="submit">Gerar Gráfico Pizza</button>
   </form>
 
   <canvas id="graficoPizza"></canvas>
 
+  <a class="voltar" href="dashboard.html">← Voltar ao Dashboard</a>
+
   <script>
     let chart = null;
 
-    document.getElementById('formGrafico').addEventListener('submit', async function(e) {
+    document.getElementById('formGrafico').addEventListener('submit', function (e) {
       e.preventDefault();
 
       const producaoTotalKg = parseFloat(document.getElementById('producaoTotalKg').value);
@@ -92,23 +107,25 @@
       const larvas = parseFloat(document.getElementById('larvas').value);
       const quantidadeFinal = parseFloat(document.getElementById('quantidadeFinal').value);
 
-      const resposta = await fetch('http://localhost:8080/relatorio', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ producaoTotalKg, areaM2, larvas, quantidadeFinal })
-      });
+      if (areaM2 <= 0 || larvas <= 0) {
+        alert("Área e número de larvas devem ser maiores que zero.");
+        return;
+      }
 
-      const resultado = await resposta.json();
+      // Cálculos dos indicadores
+      const produtividade = producaoTotalKg / areaM2;
+      const densidade = larvas / areaM2;
+      const taxaSobrevivencia = (quantidadeFinal / larvas) * 100;
 
       const dados = [
-        parseFloat(resultado.produtividade),
-        parseFloat(resultado.densidade),
-        parseFloat(resultado.taxaSobrevivencia)
+        produtividade,
+        densidade,
+        taxaSobrevivencia
       ];
 
       const ctx = document.getElementById('graficoPizza').getContext('2d');
 
-      if (chart) chart.destroy();
+      if (chart) chart.destroy(); // Destrói gráfico anterior se existir
 
       chart = new Chart(ctx, {
         type: 'pie',
@@ -128,7 +145,7 @@
             },
             tooltip: {
               callbacks: {
-                label: function(context) {
+                label: function (context) {
                   return `${context.label}: ${context.parsed.toFixed(2)}`;
                 }
               }
