@@ -1,43 +1,114 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Cálculo de Densidade</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f3fbe9;
+      padding: 40px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #2e7d32;
+    }
+
+    form {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      margin-top: 20px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #388e3c;
+    }
+
+    #resultado {
+      margin-top: 30px;
+      font-size: 18px;
+      color: #2e7d32;
+    }
+
+    .voltar {
+      margin-top: 20px;
+      display: inline-block;
+      text-decoration: none;
+      color: #4caf50;
+      font-weight: bold;
+    }
+
+    .voltar:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
   <h1>Cálculo de Densidade</h1>
-  <form id="formulario">
-    <label>Número de larvas:</label><br>
-    <input type="number" id="larvas" required><br><br>
 
-    <label>Área (m²):</label><br>
-    <input type="number" id="area" required><br><br>
+  <form id="formulario">
+    <label for="larvas">Número de larvas:</label>
+    <input type="number" id="larvas" required min="0" step="any" />
+
+    <label for="area">Área (m²):</label>
+    <input type="number" id="area" required min="0" step="any" />
 
     <button type="submit">Calcular</button>
   </form>
 
-  <h2 id="resultado"></h2>
+  <div id="resultado"></div>
+
+  <a class="voltar" href="dashboard.html">← Voltar ao Dashboard</a>
 
   <script>
     document.getElementById('formulario').addEventListener('submit', function(e) {
       e.preventDefault();
 
-      const larvas = document.getElementById('larvas').value;
-      const area = document.getElementById('area').value;
+      const larvas = parseFloat(document.getElementById('larvas').value);
+      const area = parseFloat(document.getElementById('area').value);
 
-      fetch('http://localhost:8080/densidade', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ larvas, area })
-      })
-      .then(res => res.text())
-      .then(resultado => {
-        document.getElementById('resultado').textContent = "Densidade: " + resultado + " larvas/m²";
-      })
-      .catch(() => {
-        document.getElementById('resultado').textContent = "Erro ao conectar com o servidor.";
-      });
+      if (isNaN(larvas) || isNaN(area)) {
+        document.getElementById('resultado').textContent = "Por favor, preencha os dois campos corretamente.";
+        return;
+      }
+      if (area === 0) {
+        document.getElementById('resultado').textContent = "Área não pode ser zero.";
+        return;
+      }
+
+      const densidade = (larvas / area) * 10000;
+      document.getElementById('resultado').textContent = `Densidade: ${densidade.toFixed(2)} larvas/ha`;
     });
   </script>
 </body>
 </html>
+
